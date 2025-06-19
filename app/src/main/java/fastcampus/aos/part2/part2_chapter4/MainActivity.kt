@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import fastcampus.aos.part2.part2_chapter4.model.Repo
+import fastcampus.aos.part2.part2_chapter4.model.UserDto
 import fastcampus.aos.part2.part2_chapter4.network.GithubService
 import retrofit2.Call
 import retrofit2.Callback
@@ -34,6 +35,23 @@ class MainActivity : AppCompatActivity() {
 
             override fun onFailure(
                 call: Call<List<Repo>?>,
+                t: Throwable
+            ) {
+                TODO("Not yet implemented")
+            }
+
+        })
+
+        githubService.searchUsers("squar").enqueue(object : Callback<UserDto> {
+            override fun onResponse(
+                call: Call<UserDto?>,
+                response: Response<UserDto?>
+            ) {
+                Log.e("MainActivity", "Search User : ${response.body()}")
+            }
+
+            override fun onFailure(
+                call: Call<UserDto?>,
                 t: Throwable
             ) {
                 TODO("Not yet implemented")
