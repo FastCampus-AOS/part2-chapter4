@@ -9,5 +9,5 @@ data class Repo(
     @SerializedName("language") val language: String?,
     @SerializedName("stargazers_count") val starCount: Int,
     @SerializedName("forks_count") val forkCount: Int,
-    @SerializedName("html_url") val url: String,
+    @SerializedName("html_url") val htmlUrl: String,
 )

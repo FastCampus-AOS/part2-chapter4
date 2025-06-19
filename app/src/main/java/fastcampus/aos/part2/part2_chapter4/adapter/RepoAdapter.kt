@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import fastcampus.aos.part2.part2_chapter4.databinding.ItemRepoBinding
 import fastcampus.aos.part2.part2_chapter4.model.Repo
 
-class RepoAdapter : ListAdapter<Repo, RepoAdapter.RepoViewHolder>(diffUtil) {
+class RepoAdapter(private val onClick: (Repo) -> Unit) : ListAdapter<Repo, RepoAdapter.RepoViewHolder>(diffUtil) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepoViewHolder {
         return RepoViewHolder(ItemRepoBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
@@ -24,6 +24,10 @@ class RepoAdapter : ListAdapter<Repo, RepoAdapter.RepoViewHolder>(diffUtil) {
             viewBinding.repoDescriptionTextView.text = item.description
             viewBinding.starCountTextView.text = item.starCount.toString()
             viewBinding.forkCountTextView.text = "${item.forkCount}"
+
+            viewBinding.root.setOnClickListener {
+                onClick(item)
+            }
         }
     }
 
