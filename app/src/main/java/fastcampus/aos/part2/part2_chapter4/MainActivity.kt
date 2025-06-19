@@ -1,11 +1,17 @@
 package fastcampus.aos.part2.part2_chapter4
 
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.TextWatcher
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import fastcampus.aos.part2.part2_chapter4.adapter.UserAdapter
 import fastcampus.aos.part2.part2_chapter4.databinding.ActivityMainBinding
@@ -21,6 +27,15 @@ import retrofit2.converter.gson.GsonConverterFactory
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var userAdapter : UserAdapter
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://api.github.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    private var searchFor: String = ""
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,29 +43,42 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.github.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+//        githubService.listRepos("square").enqueue(object: Callback<List<Repo>> {
+//            override fun onResponse(call: Call<List<Repo>?>, response: Response<List<Repo>?>) {
+//                Log.e("MainActivity", "List Repo : ${response.body()}")
+//            }
+//
+//            override fun onFailure(call: Call<List<Repo>?>, t: Throwable) {
+//                TODO("Not yet implemented")
+//            }
+//        })
 
-        val githubService = retrofit.create(GithubService::class.java)
-        githubService.listRepos("square").enqueue(object: Callback<List<Repo>> {
-            override fun onResponse(call: Call<List<Repo>?>, response: Response<List<Repo>?>) {
-                Log.e("MainActivity", "List Repo : ${response.body()}")
-            }
+        userAdapter = UserAdapter {
+            val intent = Intent(this@MainActivity, RepoActivity::class.java)
+            intent.putExtra("username", it.username)
+            startActivity(intent)
+        }
 
-            override fun onFailure(call: Call<List<Repo>?>, t: Throwable) {
-                TODO("Not yet implemented")
-            }
-        })
-
-        val userAdapter = UserAdapter()
         binding.userRecyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = userAdapter
         }
 
-        githubService.searchUsers("squar").enqueue(object : Callback<UserDto> {
+        val runnable = Runnable {
+            searchUser()
+        }
+
+        binding.searchEditText.addTextChangedListener {
+            searchFor = it.toString()
+            handler.removeCallbacks(runnable)
+            handler.postDelayed(runnable, 300)
+        }
+
+    }
+
+    private fun searchUser () {
+        val githubService = retrofit.create(GithubService::class.java)
+        githubService.searchUsers(searchFor).enqueue(object : Callback<UserDto> {
             override fun onResponse(call: Call<UserDto?>, response: Response<UserDto?>) {
                 Log.e("MainActivity", "Search User : ${response.body()}")
 
@@ -58,9 +86,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<UserDto?>, t: Throwable) {
-                TODO("Not yet implemented")
+                Toast.makeText(this@MainActivity, "에러가 발생했습니다.", Toast.LENGTH_SHORT).show()
             }
         })
-
     }
 }
