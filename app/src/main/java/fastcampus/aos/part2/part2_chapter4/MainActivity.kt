@@ -1,20 +1,45 @@
 package fastcampus.aos.part2.part2_chapter4
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import fastcampus.aos.part2.part2_chapter4.model.Repo
+import fastcampus.aos.part2.part2_chapter4.network.GithubService
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.github.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val githubService = retrofit.create(GithubService::class.java)
+        githubService.listRepos("square").enqueue(object: Callback<List<Repo>> {
+            override fun onResponse(
+                call: Call<List<Repo>?>,
+                response: Response<List<Repo>?>
+            ) {
+                Log.e("MainActivity", "List Repo : ${response.body()}")
+            }
+
+            override fun onFailure(
+                call: Call<List<Repo>?>,
+                t: Throwable
+            ) {
+                TODO("Not yet implemented")
+            }
+
+        })
+
     }
 }
