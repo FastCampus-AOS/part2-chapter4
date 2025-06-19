@@ -43,16 +43,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        githubService.listRepos("square").enqueue(object: Callback<List<Repo>> {
-//            override fun onResponse(call: Call<List<Repo>?>, response: Response<List<Repo>?>) {
-//                Log.e("MainActivity", "List Repo : ${response.body()}")
-//            }
-//
-//            override fun onFailure(call: Call<List<Repo>?>, t: Throwable) {
-//                TODO("Not yet implemented")
-//            }
-//        })
-
         userAdapter = UserAdapter {
             val intent = Intent(this@MainActivity, RepoActivity::class.java)
             intent.putExtra("username", it.username)
